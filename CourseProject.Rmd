@@ -1,0 +1,105 @@
+---
+title: "Practical Machine Learning"
+author: "Romain Jacotin"
+date: "26 avril 2015"
+output: html_document
+---
+
+# Course project
+
+## Make tidy data
+
+```{r}
+# Reading data
+training <- read.csv("pml-training.csv")
+testing  <- read.csv("pml-testing.csv")
+
+# Cleaning data
+
+# Removing all features containing 'NA' values int training and/or testing data set
+n            <- dim(training)[2]
+featureIndex <- rep(TRUE,n)
+for (i in 1:n ) {
+    featureIndex[i] <- (sum(is.na( testing[,i] ))>0) || (sum(is.na( training[,i] ))>0)
+}
+
+# Removing not useful features:
+# "X"
+featureIndex[1] <- TRUE
+# "user_name"
+featureIndex[2] <- TRUE
+# "raw_timestamp_part_1"
+featureIndex[3] <- TRUE
+# "raw_timestamp_part_2"
+featureIndex[4] <- TRUE
+# "cvtd_timestamp"
+featureIndex[5] <- TRUE
+# "new_window"
+featureIndex[6] <- TRUE
+# "num_window"
+featureIndex[7] <- TRUE
+
+# Cut each training and testing data sets in two : the dirty features part and the tidy features part
+testingNA  <- testing[ , featureIndex ]
+trainingNA <- training[ , featureIndex ]
+
+testingTidy  <- testing[ , !featureIndex ]
+trainingTidy <- training[ , !featureIndex ]
+```
+
+## Partition original data into a Training and Testing data set
+
+```{r}
+library(caret)
+inTrain <- createDataPartition( trainingTidy$classe, p=0.7, list=FALSE )
+train   <- trainingTidy[ inTrain, ]
+test    <- trainingTidy[ -inTrain, ]
+
+# Five classes repartition (A/B/C/D/E) in the newly created train (70%) and test set (30%)
+table(train$class)
+table(test$class)
+```
+
+## Fit a Random Forest model
+
+```{r}
+# modFit  <- train( classe~., data=train )
+
+```
+
+
+## Use model to predict
+
+
+predTrain <- predict( modFit, train )
+predTest  <- predict( modFit, test )
+
+
+## Evaluate model
+
+
+confusionMatrix( predTrain, train$classe )
+confusionMatrix( predTest, test$classe )
+
+
+## Use model to predict testing for submission
+
+
+predSubmit <- predict( modFit, testingTidy )
+
+
+## Create independant files for submission
+
+
+pml_write_files = function(x){
+    n = length(x)
+    for(i in 1:n){
+        filename = paste0("problem_id_",i,".txt")
+        write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+    }
+}
+
+submitData <- as.character(predSubmit)
+pml_write_files(submitData)
+
+
