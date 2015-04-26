@@ -1,6 +1,9 @@
 # Practical machine learning - course project
 Coursera course project for Data Science specialization
 
+* You can see my R markdown file [here](/CourseProject.Rmd)
+* You can see the resulting HTML file [here](/CourseProject.html)
+
 ## Background
 
 Using devices such as _Jawbone Up_, _Nike FuelBand_, and _Fitbit_ it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it.  

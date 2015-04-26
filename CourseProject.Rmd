@@ -7,7 +7,23 @@ output: html_document
 
 # Course project
 
-## Make tidy data
+This report is a R markdown file describing my analysis.
+
+### Table of contents
+
+* [Tidy data](#tidy)
+* [Cross validation](#cross)
+* [Random Forest model](#model)
+* [Model evaluation](#eval)
+* [Make the prediction submission](#submit)
+
+## <A name="tidy"></A> Tidy data
+
+We read the original training data and testing data and keep only the Tidy data by:
+
+* Removing from the data set all the columns that contain 'NA' values
+* Removing from the training set all the rows that contain 'NA' values
+* Removing not useful features for predictions like "user_name", etc...
 
 ```{r}
 # Reading data
@@ -47,50 +63,66 @@ testingTidy  <- testing[ , !featureIndex ]
 trainingTidy <- training[ , !featureIndex ]
 ```
 
-## Partition original data into a Training and Testing data set
+## <A name="cross"></A> Cross validation
+
+For cross validation, let's partition the original data into 70% for the Training set and 30% for the Testing set (others cross validation algorithm like k-fold are more useful on smaller data set than what we have here, with so much observations we have less risk of overfitting in our case).
 
 ```{r}
 library(caret)
+set.seed(42)
 inTrain <- createDataPartition( trainingTidy$classe, p=0.7, list=FALSE )
 train   <- trainingTidy[ inTrain, ]
 test    <- trainingTidy[ -inTrain, ]
+```
 
-# Five classes repartition (A/B/C/D/E) in the newly created train (70%) and test set (30%)
+Let's show the 5 classes repartition (A,B,C,D and E) in the newly created training (70%) and testing set (30%):
+
+```{r}
 table(train$class)
 table(test$class)
 ```
 
-## Fit a Random Forest model
+## <A name="model"></A> Random Forest model
+
+We can now train a Random Forest model on the training set. (Random Forest is actually the more use of all classification models, and win a lot of Kaggle competitions).
 
 ```{r}
-# modFit  <- train( classe~., data=train )
-
+modFit  <- train( classe~., data=train, method="rf" )
 ```
 
+## <A name="eval"></A> Model evaluation
 
-## Use model to predict
+To evaluate the Random Forests model we need to use it for making predictions on the training set and the testing set.
 
-
+```{r}
 predTrain <- predict( modFit, train )
 predTest  <- predict( modFit, test )
+```
 
+Then we can evaluate the Random Forests model by calculating the accuracy of this model on the training set and on the testing set:
 
-## Evaluate model
-
-
+```{r}
 confusionMatrix( predTrain, train$classe )
 confusionMatrix( predTest, test$classe )
+```
 
+| Data set | Training set ( 70% ) | Testing set ( 30% ) |
+|---|---|---|
+| Accuracy | xx.xxx %  |  xx.xxx% |
 
-## Use model to predict testing for submission
+The Random Forest model has a very good accuracy of xx.xxx % on the testing set !
 
+## <A name="submit"></A> Make the prediction submission
 
+Now we use this Random Forests model to predict the dedicated testing set (only 20 evaluations) for the submission part of the course project:
+
+```{r}
 predSubmit <- predict( modFit, testingTidy )
+```
 
+And we create the 20 independent files needed for the manual submission on Coursera:
 
-## Create independant files for submission
-
-
+```{r}
 pml_write_files = function(x){
     n = length(x)
     for(i in 1:n){
@@ -101,5 +133,5 @@ pml_write_files = function(x){
 
 submitData <- as.character(predSubmit)
 pml_write_files(submitData)
-
+```
 
