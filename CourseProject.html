@@ -86,6 +86,7 @@ img {
 <ul>
 <li>Removing from the data set all the columns that contain ‘NA’ values</li>
 <li>Removing from the training set all the rows that contain ‘NA’ values</li>
+<li>Removing not useful features for predictions like “user_name”, etc…</li>
 </ul>
 <pre class="r"><code># Reading data
 training &lt;- read.csv(&quot;pml-training.csv&quot;)
@@ -130,18 +131,18 @@ trainingTidy &lt;- training[ , !featureIndex ]</code></pre>
 <pre><code>## Loading required package: lattice
 ## Loading required package: ggplot2</code></pre>
 <pre class="r"><code>set.seed(42)
-inTrain &lt;- createDataPartition( trainingTidy$classe, p=0.01, list=FALSE )
+inTrain &lt;- createDataPartition( trainingTidy$classe, p=0.7, list=FALSE )
 train   &lt;- trainingTidy[ inTrain, ]
 test    &lt;- trainingTidy[ -inTrain, ]</code></pre>
 <p>Let’s show the 5 classes repartition (A,B,C,D and E) in the newly created training (70%) and testing set (30%):</p>
 <pre class="r"><code>table(train$class)</code></pre>
 <pre><code>## 
-##  A  B  C  D  E 
-## 56 38 35 33 37</code></pre>
+##    A    B    C    D    E 
+## 3906 2658 2396 2252 2525</code></pre>
 <pre class="r"><code>table(test$class)</code></pre>
 <pre><code>## 
 ##    A    B    C    D    E 
-## 5524 3759 3387 3183 3570</code></pre>
+## 1674 1139 1026  964 1082</code></pre>
 </div>
 <div id="random-forest-model" class="section level2">
 <h2><A name="model"></A> Random Forest model</h2>
@@ -161,18 +162,18 @@ predTest  &lt;- predict( modFit, test )</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction  A  B  C  D  E
-##          A 56  0  0  0  0
-##          B  0 38  0  0  0
-##          C  0  0 35  0  0
-##          D  0  0  0 33  0
-##          E  0  0  0  0 37
+## Prediction    A    B    C    D    E
+##          A 3906    0    0    0    0
+##          B    0 2658    0    0    0
+##          C    0    0 2396    0    0
+##          D    0    0    0 2252    0
+##          E    0    0    0    0 2525
 ## 
 ## Overall Statistics
 ##                                      
 ##                Accuracy : 1          
-##                  95% CI : (0.9816, 1)
-##     No Information Rate : 0.2814     
+##                  95% CI : (0.9997, 1)
+##     No Information Rate : 0.2843     
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
 ##                                      
 ##                   Kappa : 1          
@@ -181,46 +182,46 @@ predTest  &lt;- predict( modFit, test )</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000    1.000   1.0000   1.0000   1.0000
-## Specificity            1.0000    1.000   1.0000   1.0000   1.0000
-## Pos Pred Value         1.0000    1.000   1.0000   1.0000   1.0000
-## Neg Pred Value         1.0000    1.000   1.0000   1.0000   1.0000
-## Prevalence             0.2814    0.191   0.1759   0.1658   0.1859
-## Detection Rate         0.2814    0.191   0.1759   0.1658   0.1859
-## Detection Prevalence   0.2814    0.191   0.1759   0.1658   0.1859
-## Balanced Accuracy      1.0000    1.000   1.0000   1.0000   1.0000</code></pre>
+## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Prevalence             0.2843   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2843   0.1935   0.1744   0.1639   0.1838
+## Detection Prevalence   0.2843   0.1935   0.1744   0.1639   0.1838
+## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
 <pre class="r"><code>confusionMatrix( predTest, test$classe )</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 4854  536  244  144  157
-##          B  256 2392  468  199  391
-##          C  112  290 2292  331  392
-##          D  238  223  225 2306  181
-##          E   64  318  158  203 2449
+##          A 1673    7    0    0    0
+##          B    1 1132    7    0    0
+##          C    0    0 1017   19    0
+##          D    0    0    2  945    0
+##          E    0    0    0    0 1082
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.7359          
-##                  95% CI : (0.7296, 0.7421)
-##     No Information Rate : 0.2844          
+##                Accuracy : 0.9939          
+##                  95% CI : (0.9915, 0.9957)
+##     No Information Rate : 0.2845          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.665           
-##  Mcnemar's Test P-Value : &lt; 2.2e-16       
+##                   Kappa : 0.9923          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.8787   0.6363   0.6767   0.7245   0.6860
-## Specificity            0.9222   0.9161   0.9298   0.9466   0.9531
-## Pos Pred Value         0.8179   0.6454   0.6708   0.7268   0.7672
-## Neg Pred Value         0.9503   0.9130   0.9316   0.9460   0.9309
-## Prevalence             0.2844   0.1935   0.1744   0.1639   0.1838
-## Detection Rate         0.2499   0.1232   0.1180   0.1187   0.1261
-## Detection Prevalence   0.3056   0.1908   0.1759   0.1634   0.1643
-## Balanced Accuracy      0.9005   0.7762   0.8033   0.8355   0.8196</code></pre>
+## Sensitivity            0.9994   0.9939   0.9912   0.9803   1.0000
+## Specificity            0.9983   0.9983   0.9961   0.9996   1.0000
+## Pos Pred Value         0.9958   0.9930   0.9817   0.9979   1.0000
+## Neg Pred Value         0.9998   0.9985   0.9981   0.9962   1.0000
+## Prevalence             0.2845   0.1935   0.1743   0.1638   0.1839
+## Detection Rate         0.2843   0.1924   0.1728   0.1606   0.1839
+## Detection Prevalence   0.2855   0.1937   0.1760   0.1609   0.1839
+## Balanced Accuracy      0.9989   0.9961   0.9937   0.9899   1.0000</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -232,12 +233,12 @@ predTest  &lt;- predict( modFit, test )</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">Accuracy</td>
-<td align="left">xx.xxx %</td>
-<td align="left">xx.xxx%</td>
+<td align="left">100 %</td>
+<td align="left">99.39%</td>
 </tr>
 </tbody>
 </table>
-<p>The Random Forest model has a very good accuracy of xx.xxx % on the testing set !</p>
+<p>The Random Forest model has a very good accuracy of 99.39 % on the testing set !</p>
 </div>
 <div id="make-the-prediction-submission" class="section level2">
 <h2><A name="submit"></A> Make the prediction submission</h2>

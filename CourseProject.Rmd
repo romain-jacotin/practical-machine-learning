@@ -108,9 +108,9 @@ confusionMatrix( predTest, test$classe )
 
 | Data set | Training set ( 70% ) | Testing set ( 30% ) |
 |---|---|---|
-| Accuracy | 100 %  |  99.9939 % |
+| Accuracy | 100 %  |  99.39 % |
 
-The Random Forest model has a very good accuracy of 99.9939 % on the testing set !
+The Random Forest model has a very good accuracy of 99.39 % on the testing set !
 
 ## <A name="submit"></A> Make the prediction submission
 
